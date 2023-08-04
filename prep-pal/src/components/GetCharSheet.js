@@ -8,7 +8,7 @@ const GetCharSheet = (props) => {
     const lines = text.split("\n");
     const character = {};
     let section = null;
-
+    let defenseCounter = 0;
     // Define a list of possible class names
     const classes = [
       "Wizard",
@@ -23,6 +23,7 @@ const GetCharSheet = (props) => {
       "Monk",
       "Rogue",
       "Barbarian",
+      "Blood Hunter",
     ];
 
     for (let i = 0; i < lines.length; i++) {
@@ -90,6 +91,13 @@ const GetCharSheet = (props) => {
       } else if (line === "ARMOR CLASS") {
         section = "ARMOR CLASS";
         character.armorClass = {};
+      } else if (line === "Defenses and Conditions") {
+        section = "Defenses and Conditions";
+        character.defenses = {
+          resistances: [],
+          immunities: [],
+          vulnerabilities: [],
+        };
       }
 
       // Parse section content
@@ -213,15 +221,37 @@ const GetCharSheet = (props) => {
           }
         });
       } else if (section === "INITIATIVE") {
-          const modifierLine = lines[i + 1].trim(); // The modifier is in the next line
-          const valueLine = lines[i + 2].trim();
-          character.initiative = modifierLine + valueLine;
-          section = null;
+        const modifierLine = lines[i + 1].trim(); // The modifier is in the next line
+        const valueLine = lines[i + 2].trim();
+        character.initiative = modifierLine + valueLine;
+        section = null;
       } else if (section === "ARMOR CLASS") {
-          const armorClassLine = lines[i + 2].trim(); // The armor class is on the next line
-          character.armorClass = Number(armorClassLine);
-          section = null; // Reset section
-        
+        const armorClassLine = lines[i + 2].trim(); // The armor class is on the next line
+        character.armorClass = Number(armorClassLine);
+        section = null; // Reset section
+      } else if (line === "Defenses and Conditions") {
+        section = "Defenses and Conditions";
+        character.defenses = {
+          resistances: [],
+          immunities: [],
+          vulnerabilities: [],
+        };
+        defenseCounter = 0;
+      } else if (section === "Defenses and Conditions") {
+        if (line.endsWith("*")) {
+          const defense = line.slice(0); // Remove the '*' at the end
+          if (defense.trim() !== "DEFENSES") { // We do not want to include the 'DEFENSES' line
+            // Determine the defense type based on the counter
+            if (defenseCounter === 0) {
+              character.defenses.resistances.push(defense);
+            } else if (defenseCounter === 1) {
+              character.defenses.immunities.push(defense);
+            } else {
+              character.defenses.vulnerabilities.push(defense);
+            }
+            defenseCounter++;
+          }
+        }
       }
     }
 
