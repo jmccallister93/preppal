@@ -81,9 +81,15 @@ const GetCharSheet = (props) => {
       } else if (line === "Proficiencies and Languages") {
         section = "Proficiencies and Languages";
         character.proficiencies = {};
-      } else if (line === "Skills"){
-        section = "Skills"
-        character.skills = {}
+      } else if (line === "Skills") {
+        section = "Skills";
+        character.skills = {};
+      } else if (line === "INITIATIVE") {
+        section = "INITIATIVE";
+        character.initiative = {};
+      } else if (line === "ARMOR CLASS") {
+        section = "ARMOR CLASS";
+        character.armorClass = {};
       }
 
       // Parse section content
@@ -178,8 +184,7 @@ const GetCharSheet = (props) => {
             character.proficiencies[proficiency] = value.split(", ");
           }
         });
-      }
-      else if (section === "Skills") {
+      } else if (section === "Skills") {
         const skills = [
           "Acrobatics",
           "Animal Handling",
@@ -201,12 +206,22 @@ const GetCharSheet = (props) => {
           "Survival",
         ];
         skills.forEach((skill) => {
-            if (line.startsWith(skill)) {
-              const modifierLine = lines[i + 2].trim(); // The modifier is in the next line
-              const valueLine = lines[i + 3].trim(); // The skill value is in the line after the modifier
-              character.skills[skill] = modifierLine + valueLine;
-            }
+          if (line.startsWith(skill)) {
+            const modifierLine = lines[i + 2].trim(); // The modifier is in the next line
+            const valueLine = lines[i + 3].trim(); // The skill value is in the line after the modifier
+            character.skills[skill] = modifierLine + valueLine;
+          }
         });
+      } else if (section === "INITIATIVE") {
+          const modifierLine = lines[i + 1].trim(); // The modifier is in the next line
+          const valueLine = lines[i + 2].trim();
+          character.initiative = modifierLine + valueLine;
+          section = null;
+      } else if (section === "ARMOR CLASS") {
+          const armorClassLine = lines[i + 2].trim(); // The armor class is on the next line
+          character.armorClass = Number(armorClassLine);
+          section = null; // Reset section
+        
       }
     }
 
