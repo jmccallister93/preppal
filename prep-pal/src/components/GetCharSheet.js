@@ -81,6 +81,9 @@ const GetCharSheet = (props) => {
       } else if (line === "Proficiencies and Languages") {
         section = "Proficiencies and Languages";
         character.proficiencies = {};
+      } else if (line === "Skills"){
+        section = "Skills"
+        character.skills = {}
       }
 
       // Parse section content
@@ -174,6 +177,35 @@ const GetCharSheet = (props) => {
             const value = lines[i + 1].trim();
             character.proficiencies[proficiency] = value.split(", ");
           }
+        });
+      }
+      else if (section === "Skills") {
+        const skills = [
+          "Acrobatics",
+          "Animal Handling",
+          "Arcana",
+          "Athletics",
+          "Deception",
+          "History",
+          "Insight",
+          "Intimidation",
+          "Investigation",
+          "Medicine",
+          "Nature",
+          "Perception",
+          "Performance",
+          "Persuasion",
+          "Religion",
+          "Sleight of Hand",
+          "Stealth",
+          "Survival",
+        ];
+        skills.forEach((skill) => {
+            if (line.startsWith(skill)) {
+              const modifierLine = lines[i + 2].trim(); // The modifier is in the next line
+              const valueLine = lines[i + 3].trim(); // The skill value is in the line after the modifier
+              character.skills[skill] = modifierLine + valueLine;
+            }
         });
       }
     }
