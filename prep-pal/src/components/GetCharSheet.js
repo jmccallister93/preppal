@@ -8,6 +8,7 @@ const GetCharSheet = (props) => {
     const lines = text.split("\n");
     const character = {};
     let section = null;
+
     // Define a list of possible class names
     const classes = [
       "Wizard",
@@ -74,7 +75,12 @@ const GetCharSheet = (props) => {
         character.health = {};
       } else if (line === "Saving Throws") {
         section = "Saving Throws";
-        character.health = {};
+      } else if (line === "Senses") {
+        section = "Senses";
+        character.senses = {};
+      } else if (line === "Proficiencies and Languages") {
+        section = "Proficiencies and Languages";
+        character.proficiencies = {};
       }
 
       // Parse section content
@@ -95,7 +101,7 @@ const GetCharSheet = (props) => {
             character.abilities[ability] = { modifier, score };
           }
         });
-      }else if (section === "Saving Throws") {
+      } else if (section === "Saving Throws") {
         // Parse saving throws
         [
           "Strength Saving Throw",
@@ -115,8 +121,7 @@ const GetCharSheet = (props) => {
             character.abilities[ability].savingThrow = modifierLine + valueLine;
           }
         });
-      }
-       else if (section === "Proficiency Bonus" && line === "PROFICIENCY") {
+      } else if (section === "Proficiency Bonus" && line === "PROFICIENCY") {
         character.proficiencyBonus = Number(lines[i + 2].trim());
         section = null; // Reset section
       } else if (section === "Speed") {
@@ -138,12 +143,38 @@ const GetCharSheet = (props) => {
         if (line === "SPEED") section = null; // Reset section
       } else if (section === "Character Health" && line === "MAX") {
         character.health.max = Number(lines[i + 1].trim());
+      } else if (section === "Senses") {
+        const passiveSenses = [
+          "PASSIVE WIS (PERCEPTION)",
+          "PASSIVE INT (INVESTIGATION)",
+          "PASSIVE WIS (INSIGHT)",
+        ];
+        passiveSenses.forEach((sense) => {
+          if (line.includes(sense)) {
+            const value = line.match(/^\d+/)[0]; // Extract the number at the beginning of the line
+            character.senses[sense] = Number(value);
+          }
+        });
+        const visionSenses = [
+          "Darkvision",
+          "Blindsight",
+          "Tremorsense",
+          "Truesight",
+        ];
+        visionSenses.forEach((sense) => {
+          if (line.startsWith(sense)) {
+            const value = line.split(sense)[1].trim();
+            character.senses[sense] = value;
+          }
+        });
       } else if (section === "Proficiencies and Languages") {
-        // Parse proficiencies and languages
-        if (line === "LANGUAGES") {
-          const languagesLine = lines[i + 1].trim();
-          character.proficiencies.languages = languagesLine.split(", ");
-        }
+        const proficiencies = ["ARMOR", "WEAPONS", "TOOLS", "LANGUAGES"];
+        proficiencies.forEach((proficiency) => {
+          if (line === proficiency) {
+            const value = lines[i + 1].trim();
+            character.proficiencies[proficiency] = value.split(", ");
+          }
+        });
       }
     }
 
