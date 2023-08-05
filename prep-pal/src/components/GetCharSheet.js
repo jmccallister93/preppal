@@ -9,6 +9,10 @@ const GetCharSheet = (props) => {
     const character = {};
     let section = null;
     let defenseCounter = 0;
+    let actionsCounter = 2;
+    let bonusActionsCounter = 0;
+    let reactionsCounter = 0;
+    let otherCounter = 0;
     // Define a list of possible class names
     const classes = [
       "Wizard",
@@ -98,6 +102,19 @@ const GetCharSheet = (props) => {
           immunities: [],
           vulnerabilities: [],
         };
+      } else if (line === "ACTIONS") {
+        section = "ACTIONS";
+        character.actions = [];
+        character.attacksPerAction = {};
+      } else if (line === "BONUS ACTIONS") {
+        section = "BONUS ACTIONS";
+        character.bonusActions = [];
+      } else if (line === "REACTIONS") {
+        section = "REACTIONS";
+        character.reactions = [];
+      } else if (line === "OTHER") {
+        section = "OTHER";
+        character.other = [];
       }
 
       // Parse section content
@@ -239,8 +256,9 @@ const GetCharSheet = (props) => {
         defenseCounter = 0;
       } else if (section === "Defenses and Conditions") {
         if (line.endsWith("*")) {
-          const defense = line.slice(0); // Remove the '*' at the end
-          if (defense.trim() !== "DEFENSES") { // We do not want to include the 'DEFENSES' line
+          const defense = line.slice(0, -1).split("*"); // Remove the '*' at the end
+          if (defense[0] !== "DEFENSES") {
+            // We do not want to include the 'DEFENSES' line
             // Determine the defense type based on the counter
             if (defenseCounter === 0) {
               character.defenses.resistances.push(defense);
@@ -252,6 +270,38 @@ const GetCharSheet = (props) => {
             defenseCounter++;
           }
         }
+      } else if (line.startsWith("ACTIONS • Attacks per Action:")) {
+        // Extract the number at the end of the line using a regular expression
+        const attacksPerAction = line.match(/(\d+)$/)[0];
+        character.attacksPerAction = Number(attacksPerAction);
+      } else if (line === "ACTIONS" &&
+      line.startsWith("Upvote/Downvote")) {
+        const actionLine = lines[i + 1].trim(); // The bonus action is on the next line
+        character.actions.push(actionLine);
+      } else if (
+        section === "BONUS ACTIONS" &&
+        line.startsWith("Upvote/Downvote")
+      ) {
+        while (lines[i].startsWith("Upvote/Downvote")) {
+        const bonusAction = {
+            name: lines[i + 2].trim(),
+            range: lines[i + 3].trim(),
+            hitDc: lines[i + 5].trim(),
+            damage: lines[i + 7].trim(),
+            notes: lines[i + 8].trim()
+          };
+          character.bonusActions.push(bonusAction);
+          i += 9; // Skip lines associated with this bonus action
+        }
+      } else if (
+        section === "REACTIONS" &&
+        line.startsWith("Upvote/Downvote")
+      ) {
+        const reactionLine = lines[i + 1].trim(); // The reaction is on the next line
+        character.reactions.push(reactionLine);
+      } else if (section === "OTHER" && line.startsWith("Upvote/Downvote")) {
+        const otherLine = lines[i + 1].trim(); // The other action is on the next line
+        character.other.push(otherLine);
       }
     }
 
