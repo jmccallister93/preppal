@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import GetCharSheet from "../components/GetCharSheet";
 import CharacterAPI from "../components/CharacterAPI";
+import Bot from "../components/bot";
 
 const HomePage = (props) => {
   const [id, setId] = useState('')
@@ -21,7 +22,8 @@ const HomePage = (props) => {
           <input type="text" value={id} onChange={handleInputChange} />
           <button type="submit">Submit</button>
         </form>
-        <CharacterAPI id={id}/>
+        {/* <CharacterAPI id={id}/> */}
+        <Bot />
       </div>
     </>
   );
