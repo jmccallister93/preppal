@@ -4,7 +4,7 @@ const cors_anywhere = require('cors-anywhere');
 const app = express();
 const port = 5000;
 
-const DISCORD_TOKEN = 'MTEzODU5MTQyNjA1ODQwODAxNw.GnBq9H.RjvTKVjV-6bl2v4sSZcVsc391_VlljPZyzo4j4';
+
 
 const config = {
   headers: {
